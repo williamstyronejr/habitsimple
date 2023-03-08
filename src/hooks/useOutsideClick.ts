@@ -11,7 +11,7 @@ const useOutsideClick = ({
   ignoreButton?: boolean;
   triggerKeys?: String[];
 }) => {
-  const ref = React.useRef<HTMLElement>(null);
+  const ref = React.useRef<HTMLDivElement>(null);
 
   const onClickEvent = React.useCallback(
     (evt: MouseEvent) => {
