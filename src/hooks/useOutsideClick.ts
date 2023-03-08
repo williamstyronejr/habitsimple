@@ -11,14 +11,14 @@ const useOutsideClick = ({
   ignoreButton?: boolean;
   triggerKeys?: String[];
 }) => {
-  const ref = React.useRef(null);
+  const ref = React.useRef<HTMLElement>(null);
 
   const onClickEvent = React.useCallback(
-    (evt) => {
+    (evt: MouseEvent) => {
       if (ref && ref.current) {
-        if (!ref.current.contains(evt.target)) {
+        if (!ref.current.contains(evt.target as HTMLElement)) {
           if (ignoreButton) {
-            if (evt.target.tagName !== 'BUTTON') closeEvent();
+            if ((evt.target as HTMLElement).tagName !== 'BUTTON') closeEvent();
           } else {
             closeEvent();
           }
@@ -29,37 +29,25 @@ const useOutsideClick = ({
   );
 
   const onKeyEvent = React.useCallback(
-    (evt) => {
+    (evt: KeyboardEvent) => {
       if (triggerKeys.includes(evt.key)) {
         closeEvent();
       }
     },
-    [ref.current, closeEvent]
-  );
-
-  const events = React.useMemo(
-    () => [
-      ['click', onClickEvent],
-      ['keyup', onKeyEvent],
-    ],
-    [onClickEvent, onKeyEvent]
+    [closeEvent, triggerKeys]
   );
 
   React.useLayoutEffect(() => {
     if (active || active === undefined) {
-      events.map((config) => {
-        const [eventName, handler] = config;
-        window.addEventListener(eventName, handler);
-      });
+      window.addEventListener('click', onClickEvent);
+      window.addEventListener('keyup', onKeyEvent);
 
       return () => {
-        events.map((config) => {
-          const [eventName, handler] = config;
-          window.removeEventListener(eventName, handler);
-        });
+        window.removeEventListener('click', onClickEvent);
+        window.removeEventListener('keyup', onKeyEvent);
       };
     }
-  }, [events, active]);
+  }, [onClickEvent, onKeyEvent, active]);
 
   return ref;
 };
