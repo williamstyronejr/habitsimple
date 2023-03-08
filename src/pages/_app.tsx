@@ -10,8 +10,8 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
-      <header className="h-10">
-        <h1 className="text-center">Habits</h1>
+      <header className="">
+        <h1 className="text-center font-medium text-lg my-4">Habit Tracker </h1>
       </header>
 
       <main className="flex-grow">
