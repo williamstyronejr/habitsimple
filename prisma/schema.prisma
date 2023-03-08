@@ -10,6 +10,7 @@ datasource db {
 model Habit {
   id            String  @id @default(auto()) @map("_id") @db.ObjectId
   title         String
+  description   String?
   lastCompleted String?
 
   @@map("habits")
