@@ -16,6 +16,9 @@ export default async function RequestHandler(
       where: { id: id?.toString() },
       data: {
         lastCompleted: new Date().toDateString(),
+        completedCount: {
+          increment: 1,
+        },
       },
     });
 
