@@ -8,10 +8,11 @@ datasource db {
 }
 
 model Habit {
-  id            String  @id @default(auto()) @map("_id") @db.ObjectId
-  title         String
-  description   String?
-  lastCompleted String?
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  title          String
+  description    String?
+  lastCompleted  String?
+  completedCount Int     @default(0) @map("completed_count")
 
   @@map("habits")
 }
