@@ -8,11 +8,21 @@ datasource db {
 }
 
 model Habit {
-  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
   title          String
   description    String?
   lastCompleted  String?
-  completedCount Int     @default(0) @map("completed_count")
+  completedCount Int          @default(0) @map("completed_count")
+  Completion     Completion[]
 
   @@map("habits")
+}
+
+model Completion {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  habit   Habit    @relation(fields: [habitId], references: [id])
+  habitId String   @db.ObjectId
+  date    DateTime
+
+  @@map("completions")
 }
