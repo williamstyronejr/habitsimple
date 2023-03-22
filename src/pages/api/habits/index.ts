@@ -1,9 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/utils/db';
-import { Habit } from '@prisma/client';
+import { Habit, Completion } from '@prisma/client';
+import dayjs from 'dayjs';
 
 type ResponseData = {
-  habits: Habit[];
+  habits: (Habit & {
+    Completion: Completion[];
+  })[];
 };
 
 export default async function RequestHandler(
@@ -11,7 +14,17 @@ export default async function RequestHandler(
   res: NextApiResponse<ResponseData | String>
 ) {
   try {
-    const habits = await prisma.habit.findMany();
+    const habits = await prisma.habit.findMany({
+      include: {
+        Completion: {
+          where: {
+            date: {
+              gte: dayjs().startOf('w').toDate(),
+            },
+          },
+        },
+      },
+    });
 
     return res.json({ habits });
   } catch (err) {
