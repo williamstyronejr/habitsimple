@@ -1,26 +1,17 @@
 import Head from 'next/head';
-import { SyntheticEvent, useCallback, useEffect, useState } from 'react';
+import { SyntheticEvent, useState } from 'react';
+import dayjs from 'dayjs';
+import Image from 'next/image';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import useOutsideClick from '@/hooks/useOutsideClick';
-import { Habit } from '@prisma/client';
 import Input from '@/components/ui/Input';
+import useCurrentDate from '@/hooks/useCurrentDate';
+import useCompleteHabit from '@/hooks/api/useCompleteHabit';
+import useGetHabits from '@/hooks/api/useGetHabits';
+import useCreateHabit from '@/hooks/api/useCreateHabit';
 
-function isSameDay(date1: Date | null, date2: Date | null) {
-  return date1 === null || date2 === null
-    ? false
-    : date1.getUTCFullYear() === date2.getUTCFullYear() &&
-        date1.getMonth() === date2.getMonth() &&
-        date1.getDate() === date2.getDate();
-}
-
-const HabitModal = ({
-  onSuccess,
-  onClose,
-}: {
-  onSuccess: (habit: Habit) => void;
-  onClose: () => void;
-}) => {
-  const [requesting, setRequesting] = useState(false);
+const HabitModal = ({ onClose }: { onClose: () => void }) => {
+  const { mutate, isLoading } = useCreateHabit({ onSettled: onClose });
   const ref = useOutsideClick({
     closeEvent: onClose,
     active: true,
@@ -29,28 +20,12 @@ const HabitModal = ({
 
   const onSubmit = (evt: SyntheticEvent<HTMLFormElement>) => {
     evt.preventDefault();
-    // Prevent double submits
-    if (requesting) return;
+    if (isLoading) return;
 
     const formData = new FormData(evt.currentTarget);
     const fields = Object.fromEntries(formData.entries());
 
-    fetch('/api/habits/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(fields),
-    }).then(async (res) => {
-      if (!res.ok) {
-        onClose();
-      }
-
-      const body = await res.json();
-      onSuccess(body.habit);
-      setRequesting(false);
-      onClose();
-    });
+    mutate({ fields });
   };
 
   return (
@@ -95,32 +70,14 @@ const HabitModal = ({
 };
 
 export default function Home() {
-  const [habits, setHabits] = useState<Habit[]>([]);
   const [habitModal, setHabitModal] = useState(false);
   const [parent, enableAnimations] = useAutoAnimate();
-  const taskColors: Record<number, string> = {
-    0: 'bg-task-1',
-    1: 'bg-task-2',
-    2: 'bg-task-3',
-    3: 'bg-task-4',
-    4: 'hover:bg-task-1-hover',
-    5: 'hover:bg-task-2-hover',
-    6: 'hover:bg-task-3-hover',
-    7: 'hover:bg-task-4-hover',
-  };
+  const { data: habits, isLoading } = useGetHabits();
+  const { mutate } = useCompleteHabit();
+  const currentDate = useCurrentDate();
+  const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
-  useEffect(() => {
-    fetch('/api/habits').then(async (res) => {
-      if (!res.ok) return;
-      const body: { habits: Habit[] } = await res.json();
-      setHabits(body.habits);
-    });
-  }, []);
-
-  const updateHabit = useCallback((id: String) => {
-    fetch(`/api/habits/complete?id=${id}`, { method: 'POST' }).then(() => {});
-  }, []);
-
+  if (isLoading) return null;
   return (
     <>
       <Head>
@@ -129,10 +86,7 @@ export default function Home() {
 
       <section className="">
         {habitModal ? (
-          <HabitModal
-            onClose={() => setHabitModal(false)}
-            onSuccess={(habit) => setHabits((old) => [...old, habit])}
-          />
+          <HabitModal onClose={() => setHabitModal(false)} />
         ) : null}
 
         <header className="text-right px-6 mb-2">
@@ -150,39 +104,65 @@ export default function Home() {
             ref={parent}
             className="flex flex-col flex-nowrap overflow-y-auto"
           >
-            {habits
-              .filter(
-                (habit) =>
-                  !isSameDay(new Date(), new Date(habit.lastCompleted || ''))
-              )
-              .map((habit, index) => (
-                <li
-                  key={habit.id}
-                  className={`w-10/12  my-2 mx-auto rounded-md bg-task-1 transition-colors ${
-                    taskColors[index % 4]
-                  } ${taskColors[(index % 4) + 4]}`}
-                >
-                  <button
-                    className="block p-4 text-white w-full"
-                    type="button"
-                    onClick={() => {
-                      setHabits((old) =>
-                        old.map((item) => {
-                          return item.id !== habit.id
-                            ? item
-                            : {
-                                ...item,
-                                lastCompleted: new Date().toDateString(),
-                              };
-                        })
+            {habits.map((habit) => (
+              <li
+                key={habit.id}
+                className="w-10/12  my-2 mx-auto rounded-md transition-colors"
+              >
+                <div className="flex flex-row flex-nowrap items-center">
+                  <Image
+                    className="w-10 h-10 bg-black rounded-2xl mr-4"
+                    src=""
+                    alt=""
+                  />
+
+                  <div>{habit.title}</div>
+                </div>
+
+                <div>
+                  <div className="flex flex-row flex-nowrap">
+                    {days.map((day, index) => {
+                      const dayDate = dayjs().startOf('w').add(index, 'day');
+                      const completionDates = habit.Completion.map(
+                        (completion) =>
+                          dayjs(completion.date).startOf('d').toString()
                       );
-                      updateHabit(habit.id);
-                    }}
-                  >
-                    {habit.title}
-                  </button>
-                </li>
-              ))}
+                      let styles = '';
+                      let isDisabled = false;
+                      let content = <span>{day}</span>;
+
+                      if (completionDates.includes(dayDate.toString())) {
+                        styles = 'bg-black text-white';
+                        content = <i className="fas fa-check" />;
+                      } else if (dayDate.isSame(currentDate)) {
+                        styles = 'border-dashed border-black text-black';
+                      } else if (dayDate.isBefore(currentDate)) {
+                        styles = 'border-slate-400 text-slate-400';
+                        isDisabled = true;
+                        content = <i className="fas fa-times" />;
+                      } else if (dayDate.isAfter(currentDate)) {
+                        styles = 'border-slate-400 text-slate-400';
+                        isDisabled = true;
+                      }
+
+                      return (
+                        <button
+                          key={`${habit.id}-${day}-${index}`}
+                          className={`w-8 h-8 rounded-full border ${styles} px-2 py-1 mr-2`}
+                          type="button"
+                          disabled={isDisabled}
+                          onClick={() => {
+                            mutate({ id: habit.id, date: dayDate.toString() });
+                          }}
+                        >
+                          {content}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </li>
+            ))}
           </ul>
         </div>
       </section>
