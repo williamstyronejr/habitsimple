@@ -10,8 +10,28 @@ export default async function RequestHandler(
   res: NextApiResponse<ResponseData | String>
 ) {
   const { id } = req.query;
+  const { date } = req.body;
 
   try {
+    const habit = await prisma.habit.findUnique({
+      where: {
+        id: id?.toString(),
+      },
+    });
+
+    if (!habit) return res.status(400).end();
+
+    await prisma.completion.create({
+      data: {
+        habit: {
+          connect: {
+            id: habit.id,
+          },
+        },
+        date: new Date(date),
+      },
+    });
+
     await prisma.habit.update({
       where: { id: id?.toString() },
       data: {
