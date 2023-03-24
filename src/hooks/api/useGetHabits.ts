@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Habit, Completion } from '@prisma/client';
+import { Habit, Completion, Icon } from '@prisma/client';
 
 const useGetHabits = () => {
   return useQuery(['habits'], async () => {
@@ -9,8 +9,10 @@ const useGetHabits = () => {
     const body: {
       habits: (Habit & {
         Completion: Completion[];
+        icon: Icon;
       })[];
     } = await res.json();
+
     return body.habits;
   });
 };
