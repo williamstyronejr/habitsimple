@@ -7,22 +7,39 @@ type ResponseData = {
   success: boolean;
 };
 
+type ErrorData = {
+  errors: {
+    icons?: String;
+  };
+};
+
 export default async function RequestHandler(
   req: NextApiRequest,
-  res: NextApiResponse<ResponseData | String>
+  res: NextApiResponse<ResponseData | ErrorData>
 ) {
   const {
     method,
-    body: { title, description },
+    body: { title, description, icon },
   } = req;
 
   try {
     if (method !== 'POST') return res.status(404).end();
+    if (!icon)
+      return res.status(400).json({
+        errors: {
+          icons: 'Invalid icon',
+        },
+      });
 
     const habit = await prisma.habit.create({
       data: {
         title,
         description,
+        icon: {
+          connect: {
+            id: icon,
+          },
+        },
       },
     });
 
