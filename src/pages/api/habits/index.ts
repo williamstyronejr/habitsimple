@@ -16,6 +16,7 @@ export default async function RequestHandler(
   try {
     const habits = await prisma.habit.findMany({
       include: {
+        icon: {},
         Completion: {
           where: {
             date: {
