@@ -8,12 +8,15 @@ datasource db {
 }
 
 model Habit {
-  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  id             String  @id @default(auto()) @map("_id") @db.ObjectId
   title          String
   description    String?
   lastCompleted  String?
-  completedCount Int          @default(0) @map("completed_count")
-  Completion     Completion[]
+  completedCount Int     @default(0) @map("completed_count")
+  iconId         String  @db.ObjectId
+
+  icon       Icon         @relation(fields: [iconId], references: [id])
+  Completion Completion[]
 
   @@map("habits")
 }
@@ -25,4 +28,13 @@ model Completion {
   date    DateTime
 
   @@map("completions")
+}
+
+model Icon {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  location String
+  Habit    Habit[]
+
+  @@map("icons")
 }
