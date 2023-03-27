@@ -13,25 +13,16 @@ const useCreateHabit = (options: any) => {
         },
       });
 
-      if (!res.ok) throw new Error();
-      return await res.json();
-
-      // .then(async (res) => {
-      //   if (!res.ok) {
-      //     onClose();
-      //   }
-
-      //   const body = await res.json();
-      //   onSuccess(body.habit);
-      //   setRequesting(false);
-      //   onClose();
-      // });
+      if (res.ok || res.status === 400) return await res.json();
+      throw new Error();
     },
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['habits']);
+      onSuccess: (data) => {
+        if (!data.errors) {
+          queryClient.invalidateQueries(['habits']);
+          options.onSuccess();
+        }
       },
-      onSettled: options.onSettled,
     }
   );
 };
