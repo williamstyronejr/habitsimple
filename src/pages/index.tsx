@@ -10,11 +10,12 @@ import useCompleteHabit from '@/hooks/api/useCompleteHabit';
 import useGetHabits from '@/hooks/api/useGetHabits';
 import useCreateHabit from '@/hooks/api/useCreateHabit';
 import useGetIcons from '@/hooks/api/useGetIcons';
+import Reload from '@/components/ui/Reload';
 
-const HabitIcon = () => {
+const HabitIcon = ({ submitError }: { submitError: String }) => {
   const [icon, setIcon] = useState('');
   const [iconId, setIconId] = useState('');
-  const { data, error, isLoading } = useGetIcons();
+  const { data, isError, isLoading } = useGetIcons();
   const [selecting, setSelecting] = useState(false);
   const ref = useOutsideClick({
     closeEvent: () => setSelecting(false),
@@ -30,6 +31,7 @@ const HabitIcon = () => {
   }, [data]);
 
   if (isLoading) return null;
+  if (isError) return null;
 
   return (
     <div className="" ref={ref}>
@@ -45,6 +47,10 @@ const HabitIcon = () => {
             <Image src={icon} fill={true} alt="Habit Icon" />
           </button>
         ) : null}
+      </div>
+
+      <div data-cy="input-error" className="block text-red-500 text-sm">
+        {submitError}
       </div>
 
       <div
@@ -80,7 +86,9 @@ const HabitIcon = () => {
 };
 
 const HabitModal = ({ onClose }: { onClose: () => void }) => {
-  const { mutate, isLoading } = useCreateHabit({ onSettled: onClose });
+  const { data, mutate, isLoading, isError } = useCreateHabit({
+    onSuccess: onClose,
+  });
   const ref = useOutsideClick({
     closeEvent: onClose,
     active: true,
@@ -109,14 +117,24 @@ const HabitModal = ({ onClose }: { onClose: () => void }) => {
             X
           </button>
         </div>
+
+        {isError ? (
+          <div className="block w-full bg-red-500 py-4 px-4 my-2 rounded-md text-white">
+            An error occurred, please try again.
+          </div>
+        ) : null}
+
         <form action="POST" onSubmit={onSubmit}>
-          <HabitIcon />
+          <HabitIcon
+            submitError={data && data.errors ? data.errors.icon : null}
+          />
           <fieldset>
             <Input
               name="title"
               placeholder="Task Title"
               type="text"
               label="Title"
+              error={data && data.errors ? data.errors.title : null}
             />
 
             <Input
@@ -124,6 +142,7 @@ const HabitModal = ({ onClose }: { onClose: () => void }) => {
               placeholder="Task Description"
               type="textarea"
               label="Description"
+              error={data && data.errors ? data.errors.description : null}
             />
           </fieldset>
 
@@ -142,12 +161,18 @@ const HabitModal = ({ onClose }: { onClose: () => void }) => {
 export default function Home() {
   const [habitModal, setHabitModal] = useState(false);
   const [parent, enableAnimations] = useAutoAnimate();
-  const { data: habits, isLoading } = useGetHabits();
-  const { mutate } = useCompleteHabit();
+  const {
+    data: habits,
+    isLoading,
+    isError: fetchingError,
+    refetch,
+  } = useGetHabits();
+  const { mutate, isLoading: isMutating } = useCompleteHabit();
   const currentDate = useCurrentDate();
   const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   if (isLoading) return null;
+
   return (
     <>
       <Head>
@@ -161,7 +186,7 @@ export default function Home() {
 
         <header className="text-right px-6 mb-2">
           <button
-            className="w-10 h-10 rounded-full transition transition-colors shadow-button hover:shadow-button-hover bg-sky-500 hover:bg-sky-700  text-white"
+            className="w-10 h-10 rounded-full transition transition-colors shadow-button hover:shadow-button-hover bg-black  text-white"
             type="button"
             onClick={() => setHabitModal(true)}
           >
@@ -241,6 +266,8 @@ export default function Home() {
                 </li>
               ))}
           </ul>
+
+          {fetchingError ? <Reload retry={refetch} /> : null}
         </div>
       </section>
     </>
