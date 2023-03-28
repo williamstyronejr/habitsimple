@@ -179,7 +179,7 @@ export default function Home() {
         <title>Habit Tracker</title>
       </Head>
 
-      <section className="">
+      <section className="max-w-5xl mx-auto">
         {habitModal ? (
           <HabitModal onClose={() => setHabitModal(false)} />
         ) : null}
@@ -197,13 +197,13 @@ export default function Home() {
         <div>
           <ul
             ref={parent}
-            className="flex flex-col flex-nowrap overflow-y-auto"
+            className="grid  grid-cols-[repeat(auto-fit,_minmax(305px,_1fr))] gap-x-8 gap-y-4"
           >
             {habits &&
               habits.map((habit) => (
                 <li
                   key={habit.id}
-                  className="w-10/12  my-2 mx-auto rounded-md transition-colors"
+                  className="my-2 md:my-6 max-w-[305px] mx-auto rounded-md transition-colors"
                 >
                   <div className="flex flex-row flex-nowrap items-center relative mb-4">
                     <div className="relative w-10 h-10 mr-4 border border-slate-500 rounded-2xl">
@@ -215,7 +215,9 @@ export default function Home() {
                       />
                     </div>
 
-                    <div className="font-bold">{habit.title}</div>
+                    <div className="font-bold flex-grow">{habit.title}</div>
+
+                    <div className="font-bold">{habit.completedCount}</div>
                   </div>
 
                   <div className="px-1">
