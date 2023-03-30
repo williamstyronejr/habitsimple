@@ -12,10 +12,14 @@ export default async function RequestHandler(
   const { id } = req.query;
   const { date } = req.body;
 
+  if (!id || id === '') return res.status(400).end();
+
   try {
+    const idNum = parseInt(id.toString());
+
     const habit = await prisma.habit.findUnique({
       where: {
-        id: id?.toString(),
+        id: idNum,
       },
     });
 
@@ -33,7 +37,7 @@ export default async function RequestHandler(
     });
 
     await prisma.habit.update({
-      where: { id: id?.toString() },
+      where: { id: idNum },
       data: {
         lastCompleted: new Date().toDateString(),
         completedCount: {
