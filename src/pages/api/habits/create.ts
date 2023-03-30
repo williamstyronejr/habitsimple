@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/utils/db';
 import { Habit } from '@prisma/client';
+import { HabitErrors, validateHabit } from '@/utils/validation';
 
 type ResponseData = {
   habit: Habit;
@@ -8,28 +9,8 @@ type ResponseData = {
 };
 
 type ErrorData = {
-  errors: {
-    icons?: String;
-    title?: String;
-    description?: String;
-  };
+  errors: HabitErrors;
 };
-
-function validation({ title, icon }: { title: String; icon: String }) {
-  const errors: {
-    title?: String;
-    icon?: String;
-    description?: String;
-  } = {};
-
-  if (!title || title === '') errors.title = 'A habit name is required';
-  if (!icon) errors.icon = 'Invalid icon selected';
-
-  return {
-    errors,
-    valid: Object.keys(errors).length === 0,
-  };
-}
 
 export default async function RequestHandler(
   req: NextApiRequest,
@@ -42,7 +23,7 @@ export default async function RequestHandler(
 
   try {
     if (method !== 'POST') return res.status(404).end();
-    const { errors, valid } = validation({ title, icon });
+    const { errors, valid } = validateHabit({ title, icon });
     if (!valid) return res.status(400).json({ errors });
 
     const habit = await prisma.habit.create({
@@ -51,7 +32,7 @@ export default async function RequestHandler(
         description,
         icon: {
           connect: {
-            id: icon,
+            id: parseInt(icon),
           },
         },
       },
@@ -59,7 +40,6 @@ export default async function RequestHandler(
 
     return res.json({ success: true, habit });
   } catch (err) {
-    console.log(err);
     res.status(500).end();
   }
 }
