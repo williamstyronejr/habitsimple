@@ -3,17 +3,17 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Habit {
-  id             String  @id @default(auto()) @map("_id") @db.ObjectId
+  id             Int     @id @default(autoincrement())
   title          String
-  description    String?
+  description    String  @default("")
   lastCompleted  String?
   completedCount Int     @default(0) @map("completed_count")
-  iconId         String  @db.ObjectId
+  iconId         Int
 
   icon       Icon         @relation(fields: [iconId], references: [id])
   Completion Completion[]
@@ -22,18 +22,18 @@ model Habit {
 }
 
 model Completion {
-  id      String   @id @default(auto()) @map("_id") @db.ObjectId
-  habit   Habit    @relation(fields: [habitId], references: [id])
-  habitId String   @db.ObjectId
+  id      Int      @id @default(autoincrement())
+  habit   Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  habitId Int
   date    DateTime
 
   @@map("completions")
 }
 
 model Icon {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  id       Int     @id @default(autoincrement())
   name     String
-  location String
+  location String  @unique
   Habit    Habit[]
 
   @@map("icons")
