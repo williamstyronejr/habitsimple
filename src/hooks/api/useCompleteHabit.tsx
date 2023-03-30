@@ -5,7 +5,7 @@ const useCompleteHabit = () => {
   const queryClient = useQueryClient();
 
   return useMutation(
-    async ({ id, date }: { id: String; date: String }) => {
+    async ({ id, date }: { id: number; date: string }) => {
       const res = await fetch(`/api/habits/complete?id=${id}`, {
         method: 'POST',
         body: JSON.stringify({ date }),
