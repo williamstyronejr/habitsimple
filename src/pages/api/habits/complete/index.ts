@@ -40,6 +40,9 @@ export default async function RequestHandler(
       where: { id: idNum },
       data: {
         lastCompleted: new Date().toDateString(),
+        completionStreak: {
+          increment: 1,
+        },
         completedCount: {
           increment: 1,
         },
