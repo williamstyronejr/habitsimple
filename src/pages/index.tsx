@@ -434,7 +434,9 @@ export default function Home() {
           <HabitModal onClose={() => setHabitModal(false)} />
         ) : null}
 
-        <header className="text-right px-6 mb-2">
+        <header className="flex flex-row flex-nowrap items-center px-6 py-6 mb-2">
+          <h2 className="flex-grow font-bold text-xl">Habit Tracker</h2>
+
           <button
             className="w-10 h-10 rounded-full transition transition-colors shadow-button hover:shadow-button-hover bg-black  text-white"
             type="button"
