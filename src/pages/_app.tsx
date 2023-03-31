@@ -37,40 +37,6 @@ export default function App({ Component, pageProps }: AppProps) {
         </Head>
         <SkipNavigation />
 
-        <header className="">
-          <nav ref={ref}>
-            <button
-              type="button"
-              className="block md:hidden relative z-40"
-              onClick={() => {
-                setMenuToggle((old) => !old);
-              }}
-            >
-              <span className="block h-1 w-8 my-1 bg-black" />
-              <span className="block h-1 w-8 my-1 bg-black" />
-              <span className="block h-1 w-8 my-1 bg-black" />
-            </button>
-
-            <ul
-              className={`flex-col md:flex-row ${
-                menuTogggle ? 'flex' : 'hidden md:flex'
-              } absolute md:relative top-0 left-0 w-40 md:w-full h-full md:h-auto pt-14 px-4 md:px-0 md:pt-0 z-30 bg-sky-500`}
-            >
-              <li>
-                <Link className="block" href="/">
-                  Tracker
-                </Link>
-              </li>
-
-              <li>
-                <Link className="block" href="/">
-                  Habits
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        </header>
-
         <main id="content" className="flex-grow">
           <Component {...pageProps} />
         </main>
