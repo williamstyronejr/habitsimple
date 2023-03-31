@@ -10,11 +10,10 @@ import useCompleteHabit from '@/hooks/api/useCompleteHabit';
 import useGetHabits from '@/hooks/api/useGetHabits';
 import useCreateHabit from '@/hooks/api/useCreateHabit';
 import useGetIcons from '@/hooks/api/useGetIcons';
-import Input from '@/components/ui/Input';
-import Reload from '@/components/ui/Reload';
-
 import useDeleteHabit from '@/hooks/api/useDeleteHabit';
 import useEditHabit from '@/hooks/api/useEditHabit';
+import Input from '@/components/ui/Input';
+import Reload from '@/components/ui/Reload';
 
 const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
@@ -281,7 +280,7 @@ const Habit = ({
   currentDate: dayjs.Dayjs;
 }) => {
   const [options, setOptions] = useState(false);
-  const { mutate: completeHabit } = useCompleteHabit();
+  const { mutate: completeHabit, isLoading } = useCompleteHabit();
   const { mutate: deleteHabit } = useDeleteHabit();
   const [editMode, setEditMode] = useState(false);
 
@@ -306,10 +305,14 @@ const Habit = ({
 
       <li
         key={habit.id}
-        className="relative my-2 md:my-6 max-w-[305px] mx-auto rounded-md transition-colors"
+        className="relative my-2 md:my-6 mx-auto rounded-md transition-colors"
       >
         <div className="flex flex-row flex-nowrap items-center relative mb-4">
           <div className="relative w-10 h-10 mr-4 border border-slate-500 rounded-2xl">
+            <span className="absolute -top-2 -left-2.5 rounded-full px-1.5  text-xs text-white bg-black">
+              {habit.completionStreak}
+            </span>
+
             <Image
               className="p-1"
               src={habit.icon.location}
@@ -371,7 +374,9 @@ const Habit = ({
                 styles = 'bg-black text-white';
                 content = <i className="fas fa-check" />;
               } else if (dayDate.isSame(currentDate)) {
-                styles = 'border-dashed border-black text-black';
+                styles = `border-dashed border-black text-black transition-colors ${
+                  isLoading ? 'day-animate' : ''
+                }`;
               } else if (dayDate.isBefore(currentDate)) {
                 styles = 'border-slate-400 text-slate-400';
                 isDisabled = true;
@@ -442,7 +447,7 @@ export default function Home() {
         <div className="flex-grow">
           <ul
             ref={parent}
-            className="grid grid-cols-[repeat(auto-fit,_minmax(305px,_1fr))] gap-x-8 gap-y-4 h-full"
+            className="grid grid-cols-[repeat(auto-fit,_minmax(305px,_1fr))] gap-x-4 md:gap-x-8 gap-y-4 auto-rows-min h-full"
           >
             {habits &&
               habits.map((habit) => (
