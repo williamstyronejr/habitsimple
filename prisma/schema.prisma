@@ -8,12 +8,13 @@ datasource db {
 }
 
 model Habit {
-  id             Int     @id @default(autoincrement())
-  title          String
-  description    String  @default("")
-  lastCompleted  String?
-  completedCount Int     @default(0) @map("completed_count")
-  iconId         Int
+  id               Int     @id @default(autoincrement())
+  title            String
+  description      String  @default("")
+  lastCompleted    String?
+  completionStreak Int     @default(0) @map("completion_streak")
+  completedCount   Int     @default(0) @map("completed_count")
+  iconId           Int
 
   icon       Icon         @relation(fields: [iconId], references: [id])
   Completion Completion[]
