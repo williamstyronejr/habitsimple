@@ -71,9 +71,9 @@ const HabitIcon = ({
       <div
         className={`${
           selecting ? 'block' : 'hidden'
-        } absolute bg-white shadow-md w-52 py-4 rounded-lg`}
+        } absolute bg-white shadow-modal w-52 pt-2 py-2 mt-2 rounded-lg`}
       >
-        <div className="font-medium">Select Habit Icon</div>
+        <div className="font-medium p-2">Select Habit Icon</div>
 
         <div className="flex flex-row flex-wrap h-32 overflow-y-auto">
           {data &&
@@ -305,10 +305,10 @@ const Habit = ({
 
       <li
         key={habit.id}
-        className="relative my-2 md:my-6 mx-auto rounded-md transition-colors"
+        className="relative my-6 max-w-[350px] mx-auto rounded-md transition-colors"
       >
         <div className="flex flex-row flex-nowrap items-center relative mb-4">
-          <div className="relative w-10 h-10 mr-4 border border-slate-500 rounded-2xl">
+          <div className="relative shrink-0 w-10 h-10 mr-4 border border-slate-500 rounded-2xl">
             <span className="absolute -top-2 -left-2.5 rounded-full px-1.5  text-xs text-white bg-black">
               {habit.completionStreak}
             </span>
@@ -321,7 +321,12 @@ const Habit = ({
             />
           </div>
 
-          <div className="font-bold flex-grow">{habit.title}</div>
+          <div
+            title={habit.title}
+            className="font-bold flex-grow whitespace-nowrap text-ellipsis overflow-hidden"
+          >
+            {habit.title}
+          </div>
 
           <div className="" ref={ref}>
             <button
@@ -360,7 +365,7 @@ const Habit = ({
         </div>
 
         <div className="px-1">
-          <div className="flex flex-row flex-nowrap">
+          <div className="flex flex-row flex-nowrap justify-center">
             {DAYS.map((day, index) => {
               const dayDate = dayjs().startOf('w').add(index, 'day');
               const completionDates = habit.Completion.map((completion) =>
@@ -373,8 +378,9 @@ const Habit = ({
               if (completionDates.includes(dayDate.toString())) {
                 styles = 'bg-black text-white';
                 content = <i className="fas fa-check" />;
+                isDisabled = true;
               } else if (dayDate.isSame(currentDate)) {
-                styles = `border-dashed border-black text-black transition-colors ${
+                styles = `border-dashed border-black text-black transition-colors hover:bg-slate-500/20 hover:border-solid ${
                   isLoading ? 'day-animate' : ''
                 }`;
               } else if (dayDate.isBefore(currentDate)) {
@@ -389,7 +395,7 @@ const Habit = ({
               return (
                 <button
                   key={`${habit.id}-${day}-${index}`}
-                  className={`w-8 h-8 rounded-full border ${styles} px-2 py-1 mr-2`}
+                  className={`w-10 h-10 rounded-full border ${styles} py-1 mx-1`}
                   type="button"
                   disabled={isDisabled}
                   onClick={() => {
@@ -449,7 +455,7 @@ export default function Home() {
         <div className="flex-grow">
           <ul
             ref={parent}
-            className="grid grid-cols-[repeat(auto-fit,_minmax(305px,_1fr))] gap-x-4 md:gap-x-8 gap-y-4 auto-rows-min h-full"
+            className="grid grid-cols-[repeat(auto-fit,_minmax(350px,_1fr))] gap-x-4 md:gap-x-8 gap-y-4 auto-rows-min  h-full"
           >
             {habits &&
               habits.map((habit) => (
