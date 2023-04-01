@@ -23,7 +23,7 @@ Live demo available [here](https://habittrackerf.vercel.app/).
 
 ## To Do
 
-- [ ] Add Editting/Removing Task
+- [x] Add Editting/Removing Task
+- [x] Add streaks counter
 - [ ] Fix server and local time difference
 - [ ] Add notifications for missed tasks
-- [ ] Add streaks counter

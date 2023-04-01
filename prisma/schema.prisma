@@ -3,15 +3,39 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Habit {
-  id            String  @id @default(auto()) @map("_id") @db.ObjectId
-  title         String
-  description   String?
-  lastCompleted String?
+  id               Int     @id @default(autoincrement())
+  title            String
+  description      String  @default("")
+  lastCompleted    String?
+  completionStreak Int     @default(0) @map("completion_streak")
+  completedCount   Int     @default(0) @map("completed_count")
+  iconId           Int
+
+  icon       Icon         @relation(fields: [iconId], references: [id])
+  Completion Completion[]
 
   @@map("habits")
+}
+
+model Completion {
+  id      Int      @id @default(autoincrement())
+  habit   Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  habitId Int
+  date    DateTime
+
+  @@map("completions")
+}
+
+model Icon {
+  id       Int     @id @default(autoincrement())
+  name     String
+  location String  @unique
+  Habit    Habit[]
+
+  @@map("icons")
 }
