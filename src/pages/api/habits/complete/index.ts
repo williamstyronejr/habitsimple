@@ -51,7 +51,6 @@ export default async function RequestHandler(
 
     return res.json({ success: true });
   } catch (err) {
-    console.log(err);
     res.status(500).send('A server error occurred please try again.');
   }
 }
