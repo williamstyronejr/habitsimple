@@ -297,7 +297,7 @@ const Habit = ({
           id={habit.id}
           title={habit.title}
           description={habit.description}
-          iconId={habit.icon.id}
+          iconId={habit.iconId}
           icon={habit.icon.location}
           onClose={() => setEditMode(false)}
         />

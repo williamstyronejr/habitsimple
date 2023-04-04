@@ -37,7 +37,7 @@ const useOutsideClick = ({
     [closeEvent, triggerKeys]
   );
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     if (active || active === undefined) {
       window.addEventListener('click', onClickEvent);
       window.addEventListener('keyup', onKeyEvent);
