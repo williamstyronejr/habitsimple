@@ -55,10 +55,15 @@ const HabitIcon = ({
 
             <button
               type="button"
-              className="w-10 h-10"
+              className="relative w-10 h-10 bg-white rounded-lg"
               onClick={() => setSelecting((old) => !old)}
             >
-              <Image src={icon} fill={true} alt="Habit Icon" />
+              <Image
+                className="p-0.5"
+                src={icon}
+                fill={true}
+                alt="Habit Icon"
+              />
             </button>
           </>
         ) : null}
@@ -71,7 +76,7 @@ const HabitIcon = ({
       <div
         className={`${
           selecting ? 'block' : 'hidden'
-        } absolute bg-white shadow-modal w-52 pt-2 py-2 mt-2 rounded-lg`}
+        } absolute shadow-modal dark:shadow-slate-100/20  w-52 pt-2 py-2 mt-2 rounded-lg bg-white dark:bg-black`}
       >
         <div className="font-medium p-2">Select Habit Icon</div>
 
@@ -79,7 +84,7 @@ const HabitIcon = ({
           {data &&
             data.map((icon) => (
               <button
-                className="p-1 m-2 rounded hover:bg-slate-100"
+                className="p-1 m-2 rounded bg-white hover:bg-slate-100"
                 key={icon.id}
                 type="button"
                 title={icon.name}
@@ -122,10 +127,13 @@ const HabitModal = ({ onClose }: { onClose: () => void }) => {
 
   return (
     <div className="flex flex-row flex-nowrap absolute z-10 w-full h-full top-0 left-0 justify-center items-center bg-black/40">
-      <div className="relative bg-white w-72 rounded-md p-4" ref={ref}>
+      <div
+        className="relative w-72 rounded-md p-4 bg-white dark:bg-black"
+        ref={ref}
+      >
         <div className="text-right">
           <button
-            className="w-8 h-8 rounded-full transition-colors bg-gray-100 hover:bg-gray-300"
+            className="w-8 h-8 rounded-full transition-colors bg-gray-100 dark:text-black hover:bg-gray-300"
             type="button"
             onClick={() => onClose()}
           >
@@ -145,6 +153,7 @@ const HabitModal = ({ onClose }: { onClose: () => void }) => {
               data && data.errors ? (data.errors.icon as string) : null
             }
           />
+
           <fieldset>
             <Input
               name="title"
@@ -211,10 +220,13 @@ const HabitEdit = ({
 
   return (
     <div className="flex flex-row flex-nowrap absolute z-10 w-full h-full top-0 left-0 justify-center items-center bg-black/40">
-      <div className="relative bg-white w-72 rounded-md p-4" ref={ref}>
+      <div
+        className="relative w-72 rounded-md p-4  bg-white dark:bg-black"
+        ref={ref}
+      >
         <div className="text-right">
           <button
-            className="w-8 h-8 rounded-full transition-colors bg-gray-100 hover:bg-gray-300"
+            className="w-8 h-8 rounded-full transition-colors bg-gray-100 hover:bg-gray-300 dark:bg-white dark:text-black"
             type="button"
             onClick={() => onClose()}
           >
@@ -308,8 +320,8 @@ const Habit = ({
         className="relative my-6 max-w-[350px] mx-auto rounded-md transition-colors"
       >
         <div className="flex flex-row flex-nowrap items-center relative mb-4">
-          <div className="relative shrink-0 w-10 h-10 mr-4 border border-slate-500 rounded-2xl">
-            <span className="absolute -top-2 -left-2.5 rounded-full px-1.5  text-xs text-white bg-black">
+          <div className="relative shrink-0 w-10 h-10 mr-4 border border-slate-500 rounded-2xl dark:bg-white">
+            <span className="absolute -top-2 -left-2.5 rounded-full px-1.5  text-xs text-white dark:text-black bg-black dark:bg-white ">
               {habit.completionStreak}
             </span>
 
@@ -338,9 +350,9 @@ const Habit = ({
             </button>
 
             {options ? (
-              <div className="absolute top-10 right-0 py-4 z-20 rounded-md shadow-md bg-white ">
+              <div className="absolute top-10 right-0 py-4 z-20 rounded-md transition-colors shadow-modal dark:shadow-slate-100/20 bg-white dark:bg-black text-black dark:text-white">
                 <button
-                  className="block w-full mb-1 px-4 py-2 text-left transition-colors hover:bg-slate-100 "
+                  className="block w-full mb-1 px-4 py-2 text-left transition-colors hover:bg-slate-100  dark:hover:bg-slate-300/20"
                   type="button"
                   onClick={() => {
                     setOptions(false);
@@ -351,7 +363,7 @@ const Habit = ({
                 </button>
 
                 <button
-                  className="block w-full px-4 py-2 text-left text-red-500 transition-colors hover:bg-red-100/30 "
+                  className="block w-full px-4 py-2 text-left text-red-500 transition-colors hover:bg-red-100/30 dark:hover:bg-red-500/30 "
                   type="button"
                   onClick={() => {
                     deleteHabit({ id: habit.id });
@@ -376,12 +388,15 @@ const Habit = ({
               let content = <span>{day}</span>;
 
               if (completionDates.includes(dayDate.toString())) {
-                styles = 'bg-black text-white';
+                styles =
+                  'transition-colors bg-black dark:bg-white text-white dark:text-black';
                 content = <i className="fas fa-check" />;
                 isDisabled = true;
               } else if (dayDate.isSame(currentDate)) {
-                styles = `border-dashed border-black text-black transition-colors hover:bg-slate-500/20 hover:border-solid ${
-                  isLoading ? 'day-animate' : ''
+                styles = `border-dashed border-black dark:border-white text-black dark:text-white transition-colors ${
+                  isLoading
+                    ? 'day-animate bg-slate-500/20 dark:bg-white/20'
+                    : 'hover:bg-slate-500/20 dark:hover:bg-white/10 hover:border-solid'
                 }`;
               } else if (dayDate.isBefore(currentDate)) {
                 styles = 'border-slate-400 text-slate-400';
@@ -416,6 +431,51 @@ const Habit = ({
   );
 };
 
+const isBrowserDefaultDark = () =>
+  window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+const getDefaultTheme = (): string => {
+  const localStorageTheme = localStorage.getItem('theme');
+  const browserDefault = isBrowserDefaultDark() ? 'dark' : 'light';
+  return localStorageTheme || browserDefault;
+};
+
+const ThemeToggle = () => {
+  const [theme, setTheme] = useState<string>('');
+
+  useEffect(() => {
+    if (theme !== '') {
+      // Update LocalStorage with theme
+      localStorage.setItem('theme', theme === 'light' ? 'light' : 'dark');
+      const html = document.querySelector('html');
+      if (html) {
+        html.classList.remove(theme === 'dark' ? 'light' : 'dark');
+        html.classList.add(theme);
+      }
+    }
+  }, [theme]);
+
+  useEffect(() => {
+    setTheme(getDefaultTheme());
+  }, []);
+
+  return (
+    <button
+      className="w-10 h-10 rounded-full transition transition-colors shadow-button hover:shadow-button-hover bg-black dark:bg-white text-white dark:text-black"
+      type="button"
+      onClick={() => {
+        setTheme((old) => (old === 'dark' ? 'light' : 'dark'));
+      }}
+    >
+      <i
+        className={`text-xl ${
+          theme === 'light' ? 'fas fa-moon' : 'fas fa-sun'
+        }`}
+      />
+    </button>
+  );
+};
+
 export default function Home() {
   const [habitModal, setHabitModal] = useState(false);
   const [parent, enableAnimations] = useAutoAnimate();
@@ -444,18 +504,20 @@ export default function Home() {
           <h2 className="flex-grow font-bold text-xl">Habit Tracker</h2>
 
           <button
-            className="w-10 h-10 rounded-full transition transition-colors shadow-button hover:shadow-button-hover bg-black  text-white"
+            className="w-10 h-10 rounded-full mr-4 text-xl transition transition-colors shadow-button hover:shadow-button-hover bg-black dark:bg-white text-white dark:text-black"
             type="button"
             onClick={() => setHabitModal(true)}
           >
             +
           </button>
+
+          <ThemeToggle />
         </header>
 
         <div className="flex-grow">
           <ul
             ref={parent}
-            className="grid grid-cols-[repeat(auto-fit,_minmax(350px,_1fr))] gap-x-4 md:gap-x-8 gap-y-4 auto-rows-min  h-full"
+            className="grid grid-cols-[repeat(auto-fit,_minmax(360px,_1fr))] gap-x-4 md:gap-x-8 gap-y-4 auto-rows-min  h-full"
           >
             {habits &&
               habits.map((habit) => (
